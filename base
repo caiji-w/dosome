@@ -1,0 +1,271 @@
+package com.tank_war;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+
+public class tank_war 
+{
+   int X=0;//横坐标
+   int Y=0;//纵坐标
+   int length=1000;//横
+   int width=800;//高
+   int men=300;//左边显示的长度
+   JPanel jp;//底层背景
+   JFrame frame;
+   JLayeredPane jla;
+   
+   public static void main(String [] args)
+   {
+	   tank_war t=new tank_war();
+	   t.go();
+   }
+   public void go()
+   {
+	  frame=new JFrame();
+	  frame.setBounds(X,Y,length+men,width);
+	  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	  frame.setLocationRelativeTo(null);
+	  
+	  jla=new JLayeredPane();
+	  frame.setContentPane(jla);
+	  
+	  jp=new JPanel();
+	  jp.setBounds(X,Y,length-1,width-1);
+	  jp.setBackground(Color.black);
+	  jp.setOpaque(true);
+	  
+	  bullet b=new bullet(new Coor(100,100),"DOWN");
+	  bullet c=new bullet(new Coor(200,200),"RIGHT");
+	  
+	  jla.add(jp,new Integer(1));
+	  jla.add(b,new Integer(3));
+	  jla.add(c,new Integer(3));
+	  frame.setVisible(true); 
+	  
+	  mytank mt=new mytank();
+	  jla.add(mt,new Integer(3));
+	  mt.work();
+   }
+   class tank extends JPanel
+   {
+	   int power=50;
+	   Coor coor=new Coor(0,0);
+	   int speed=10;
+	   String dir="UP";
+	   String pic="tank.png";
+	   public void shoot()//射击
+	   {
+		   Coor c=new  Coor();
+		   if(dir.equals("UP")||dir.equals("DOWM"))
+		   {
+			    c.set(coor.x+20, coor.y);
+		   }
+		   else
+		   {
+			   c.set(coor.x+20, coor.y+20);
+		   }
+		   bullet b=new bullet(c,dir);
+		   jla.add(b,new Integer(3));
+		   b.work();
+	   }
+	   public void hurt(int p)
+	   {
+		   power=power-p;
+	   }
+   }
+   class ememy extends tank
+   {
+	   
+   }
+   class mytank extends tank implements KeyListener
+   {
+	   public mytank()
+   	   {
+   		   //this.setBounds(300,width-100,length,width);
+		   this.setBounds(0,0,length,width);
+		   this.coor.x=300;
+		   this.coor.y=width-100;
+   		   this.setOpaque(false);
+       }
+	   public void go()
+	   {
+		   System.out.println("////");
+		   frame.addKeyListener(this);
+	   }
+	   public void paint(Graphics g)	
+	   {
+		     g.setColor(Color.BLACK);
+	    	 //g.fillRect(0,0,this.getWidth(),this.getHeight());
+	    	 Image image=new ImageIcon(pic).getImage();
+		     g.drawImage(image,coor.x,coor.y,50,50,this);
+	   }
+	   @Override
+	   public void keyTyped(KeyEvent e) 
+	   {
+		// TODO 自动生成的方法存根
+		
+	   }
+	   @Override
+	   public void keyPressed(KeyEvent e) 
+	   {
+		   System.out.println("ppp");
+		   // TODO 自动生成的方法存根
+		   switch(e.getKeyCode())		
+		   {			
+		       case KeyEvent.VK_UP:				
+			       coor.y-=10;	
+			       pic="tank.png";
+			       dir="UP";
+			       this.repaint();				
+			       break;			
+			   case KeyEvent.VK_DOWN:				
+				   coor.y+=10;
+				   pic="tankdown.png";	
+				   dir="DOWN";
+				   this.repaint();				
+				   break;			
+			   case KeyEvent.VK_LEFT:				
+				   coor.x-=10;	
+				   pic="tankleft.png";	
+				   dir="LEFT";
+				   this.repaint();				
+				   break;			
+			   case KeyEvent.VK_RIGHT:				
+				   coor.x+=10;	
+				   pic="tankright.png";
+				   dir="RIGHT";		
+				   this.repaint();	
+				   break;
+			   case KeyEvent.VK_Q:				
+				   this.shoot();
+				   break;		
+		   }
+	   }
+	   @Override
+	   public void keyReleased(KeyEvent e) 
+	   {
+		   // TODO 自动生成的方法存根
+		
+	   }
+	    class Myrun implements Runnable
+        {
+			@Override
+			public void run() 
+			{
+				go();
+			}
+        }
+        public void work()
+        {
+     	    Myrun m=new Myrun();
+     	    Thread t=new Thread(m);
+     	    t.start();
+       }
+   }
+   class bullet extends JPanel
+   {
+   	   int power=10;
+       Coor coor;
+       String dir="UP";
+       public bullet(Coor c,String d)
+   	   {
+    	   super();
+    	   dir=d;
+   		   coor=c;
+   		   this.setBounds(0, 0,length,width);
+   		   this.setOpaque(false);
+   		   //this.setBackground(Color.BLUE);
+       }
+       public void runing()
+       {
+   		   for(int i=0;;i++)
+   		   {
+   			   // System.out.println(i);
+   			   // System.out.println(coor.x+"  "+coor.y);
+   			    if(dir.equals("UP"))
+   			    {
+   			    	coor.y=coor.y-2;
+   			    }
+   			    else if(dir.equals("DOWN"))
+   			    {
+   			    	coor.y=coor.y+2;
+   			    }
+   			    else if(dir.equals("LEFT"))
+			    {
+   			    	coor.x=coor.x-2;
+			    }
+   			    else if(dir.equals("RIGHT"))
+			    {
+   			    	coor.x=coor.x+2;
+			    }
+   			    if(coor.x>=(X+length)||coor.x<=X||coor.y<=Y||coor.y>=(Y+width))
+   	   		    {
+   				    //撤销
+   			    	 System.out.println("+++");
+   			    	 this.setVisible(false);
+   	   			     break;
+   	   		    }
+   			    try
+     		    {
+     			     Thread.sleep(10);
+     		    }
+     		    catch(Exception ex){}
+   			    jla.repaint();
+   		    }
+        }
+        public void paint(Graphics g)	
+	    {     
+        	super.paint(g);
+        	g.setColor(Color.pink);
+    		g.fillOval(coor.x,coor.y,10,10);
+		} 
+        class Myrun implements Runnable
+        {
+			@Override
+			public void run() 
+			{
+				runing();
+			}
+        }
+        public void work()
+        {
+        	Myrun m=new Myrun();
+        	Thread t=new Thread(m);
+        	t.start();
+        }
+   }
+}
+class Coor
+{
+	int x;
+	int y;
+	public Coor(){}
+	public Coor(Coor c) 
+	{
+		this.x=c.x;
+		this.y=c.y;
+	}
+	public Coor(int x,int y)
+	{
+		this.x=x;
+		this.y=y;
+	}
+	public void set(int x,int y)
+	{
+		this.x=x;
+		this.y=y;
+	}
+	public void setC(Coor c)
+	{
+		this.x=c.x;
+		this.y=c.y;
+	}
+}
